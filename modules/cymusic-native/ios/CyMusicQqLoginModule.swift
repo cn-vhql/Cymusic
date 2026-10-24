@@ -23,7 +23,9 @@ public final class CyMusicQqLoginModule: Module {
 
     AsyncFunction("clearSession") {
       QqWebSessionKeychain.clear()
-      await QqWebSessionKeychain.clearTencentCookies()
+      Task { @MainActor in
+        await QqWebSessionKeychain.clearTencentCookies()
+      }
     }
     .runOnQueue(.main)
   }
