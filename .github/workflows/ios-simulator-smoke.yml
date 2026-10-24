@@ -43,6 +43,7 @@ jobs:
           xcrun simctl list -j devicetypes > "$RUNNER_TEMP/devicetypes.json"
           runtime="$(python3 - "$RUNNER_TEMP/runtimes.json" <<'PY'
           import json
+          import re
           import sys
 
           runtimes = json.load(open(sys.argv[1]))["runtimes"]
@@ -68,7 +69,11 @@ jobs:
           ]
           if not phones:
               raise SystemExit("No iPhone simulator device type")
-          print(phones[-1])
+          def version(item):
+              match = re.search(r"iPhone (\\d+)", item["name"])
+              return int(match.group(1)) if match else -1
+          phones.sort(key=version, reverse=True)
+          print(phones[0]["identifier"])
           PY
           )"
           echo "Using runtime=$runtime deviceType=$device_type"
