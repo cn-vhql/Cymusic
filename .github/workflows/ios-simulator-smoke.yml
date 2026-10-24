@@ -1,0 +1,91 @@
+name: iOS Simulator Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  launch:
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      EXPO_NO_TELEMETRY: '1'
+      RCT_NEW_ARCH_ENABLED: '1'
+      RCT_HERMES_V1_ENABLED: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Install tools
+        run: |
+          gem install cocoapods --version 1.16.2 --no-document --user-install
+          echo "$(ruby -e 'puts Gem.user_dir')/bin" >> "$GITHUB_PATH"
+          echo "NODE_BINARY=$(command -v node)" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile --non-interactive
+          cd ios
+          pod _1.16.2_ install
+
+      - name: Build simulator app
+        run: |
+          udid="$(xcrun simctl list devices available -j | python3 - <<'PY'
+          import json
+          import sys
+
+          data = json.load(sys.stdin)["devices"]
+          for runtime in sorted(data):
+              for device in data[runtime]:
+                  if device["isAvailable"] and device["name"].startswith("iPhone"):
+                      print(device["udid"])
+                      raise SystemExit
+          raise SystemExit("No available iPhone simulator")
+          PY
+          )"
+          echo "SIMULATOR_UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          xcodebuild \
+            -workspace ios/CyMusic.xcworkspace \
+            -scheme CyMusic \
+            -configuration Debug \
+            -destination "id=$udid" \
+            -derivedDataPath ios/simulator-build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Launch and check process
+        run: |
+          app="$(find ios/simulator-build/Build/Products -type d -name CyMusic.app -print -quit)"
+          test -n "$app"
+          xcrun simctl install "$SIMULATOR_UDID" "$app"
+          xcrun simctl launch --console "$SIMULATOR_UDID" com.music.player.gyc \
+            > "$RUNNER_TEMP/cymusic-launch.log" 2>&1 &
+          launch_pid=$!
+          sleep 20
+          if kill -0 "$launch_pid" 2>/dev/null; then
+            echo "CyMusic stayed running for 20 seconds."
+            kill "$launch_pid" 2>/dev/null || true
+            xcrun simctl terminate "$SIMULATOR_UDID" com.music.player.gyc || true
+          else
+            wait "$launch_pid"
+            status=$?
+            cat "$RUNNER_TEMP/cymusic-launch.log"
+            xcrun simctl spawn "$SIMULATOR_UDID" log show \
+              --last 2m \
+              --style compact \
+              --predicate 'process == "CyMusic" OR eventMessage CONTAINS[c] "com.music.player.gyc"' \
+              | tail -400
+            exit "$status"
+          fi
