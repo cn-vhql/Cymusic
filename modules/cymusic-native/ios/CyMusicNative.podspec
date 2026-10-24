@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.dependency 'ExpoModulesCore'
   s.source_files = '**/*.{h,m,swift}'
   s.public_header_files = 'CyMusicUserApiRuntime.h'
-  s.frameworks = 'JavaScriptCore', 'Security', 'AVFoundation', 'MediaPlayer', 'UIKit'
+  s.frameworks = 'JavaScriptCore', 'Security', 'AVFoundation', 'MediaPlayer', 'UIKit', 'WebKit'
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'SWIFT_COMPILATION_MODE' => 'wholemodule'

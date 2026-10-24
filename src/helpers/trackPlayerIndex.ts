@@ -34,6 +34,7 @@ import { createMediaIndexMap } from '@/utils/mediaIndexMap'
 import { Alert, AppState, Image } from 'react-native'
 
 import { myGetLyric } from '@/helpers/userApi/getMusicSource'
+import { createQqWebMusicApi, QQ_WEB_SOURCE_ID } from '@/helpers/qq/qqWebSource'
 
 import { fakeAudioMp3Uri } from '@/constants/images'
 import { nowLanguage } from '@/utils/i18n'
@@ -243,12 +244,17 @@ async function setupTrackPlayer() {
 		// Project cover addresses for display only; preserve stored IDs, songs and URLs.
 		playListsStore.setValue(resolvedPlayLists)
 	}
-	if (musicApiLists) {
-		musicApiStore.setValue(musicApiLists)
-	}
-	if (selectedMusicApi) {
+	const builtInQqApi = createQqWebMusicApi()
+	const restoredApis = (musicApiLists ?? []).filter(api => api.id !== QQ_WEB_SOURCE_ID)
+	const nextApiList = [builtInQqApi, ...restoredApis]
+	musicApiStore.setValue(nextApiList)
+	PersistStatus.set('music.musicApi', nextApiList)
+	if (selectedMusicApi && selectedMusicApi.id !== QQ_WEB_SOURCE_ID) {
 		musicApiSelectedStore.setValue(selectedMusicApi)
 		await reloadNowSelectedMusicApi()
+	} else {
+		musicApiSelectedStore.setValue(builtInQqApi)
+		PersistStatus.set('music.selectedMusicApi', builtInQqApi)
 	}
 	if (importedLocalMusic) {
 		importedLocalMusicStore.setValue(importedLocalMusic)
@@ -785,6 +791,9 @@ const reloadNowSelectedMusicApi = async () => {
 	}
 }
 const reloadMusicApi = async (musicApi: IMusic.MusicApi, isTest: boolean = false): Promise<IMusic.MusicApi> => {
+	if (musicApi.id === QQ_WEB_SOURCE_ID || musicApi.scriptType === 'builtin-qq-web') {
+		return createQqWebMusicApi()
+	}
 	if (!musicApi.isSelected && !isTest) {
 		return musicApi // 如果没有被选中，直接返回原始对象
 	}

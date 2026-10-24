@@ -5,6 +5,7 @@
 			"CyMusicFileSystemModule",
 			"CyMusicSourceModule",
 			"CyMusicVolumeModule",
+			"CyMusicQqLoginModule",
 			"CyMusicRequestTasksModule",
 			"CyMusicSleepTimerModule"
 		]

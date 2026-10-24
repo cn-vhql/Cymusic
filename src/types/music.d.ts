@@ -223,7 +223,7 @@ declare namespace IMusic {
        /** 脚本内容 */
         script: string;
         /** 脚本类型: cymusic 原有格式 / lxmusic lx-music 格式 */
-        scriptType?: 'cymusic' | 'lxmusic';
+        scriptType?: 'cymusic' | 'lxmusic' | 'builtin-qq-web';
         /** 音源方法 */
         getMusicUrl: any;
         /** 其他可以被序列化的信息 */
