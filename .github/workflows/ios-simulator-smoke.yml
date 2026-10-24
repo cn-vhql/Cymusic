@@ -59,6 +59,7 @@ jobs:
           )"
           device_type="$(python3 - "$RUNNER_TEMP/devicetypes.json" <<'PY'
           import json
+          import re
           import sys
 
           types = json.load(open(sys.argv[1]))["devicetypes"]
