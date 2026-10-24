@@ -25,6 +25,7 @@ public final class CyMusicQqLoginModule: Module {
       QqWebSessionKeychain.clear()
       await QqWebSessionKeychain.clearTencentCookies()
     }
+    .runOnQueue(.main)
   }
 
   private func presentLoginPage() throws {
@@ -272,6 +273,7 @@ private enum QqWebSessionKeychain {
     SecItemDelete(query as CFDictionary)
   }
 
+  @MainActor
   static func clearTencentCookies() async {
     let store = WKWebsiteDataStore.default().httpCookieStore
     await withCheckedContinuation { continuation in
@@ -279,7 +281,7 @@ private enum QqWebSessionKeychain {
         let group = DispatchGroup()
         for cookie in cookies where isTencentCookie(cookie) {
           group.enter()
-          store.deleteCookie(cookie) {
+          store.delete(cookie) {
             group.leave()
           }
         }

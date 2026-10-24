@@ -38,12 +38,13 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
 
-      - name: Install locked Pods
+      - name: Install Pods
         working-directory: ios
         run: |
-          # Installed Pods carry configuration state; see README for local recovery.
+          # Local pods derive their checksum from source files. A Swift source change must be
+          # allowed to refresh that checksum before the release build starts.
           test ! -e Pods
-          pod _1.16.2_ install --deployment
+          pod _1.16.2_ install
 
       - name: Build unsigned .app
         run: |
