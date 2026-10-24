@@ -203,8 +203,6 @@ async function setupTrackPlayer() {
 	const track = PersistStatus.get('music.musicItem')
 	const quality = PersistStatus.get('music.quality') || '128k'
 	const playLists = PersistStatus.get('music.playLists')
-	const musicApiLists = PersistStatus.get('music.musicApi')
-	const selectedMusicApi = PersistStatus.get('music.selectedMusicApi')
 	const importedLocalMusic = PersistStatus.get('music.importedLocalMusic')
 	const autoCacheLocal = PersistStatus.get('music.autoCacheLocal') ?? true
 	const language = PersistStatus.get('app.language') ?? 'zh'
@@ -245,17 +243,10 @@ async function setupTrackPlayer() {
 		playListsStore.setValue(resolvedPlayLists)
 	}
 	const builtInQqApi = createQqWebMusicApi()
-	const restoredApis = (musicApiLists ?? []).filter(api => api.id !== QQ_WEB_SOURCE_ID)
-	const nextApiList = [builtInQqApi, ...restoredApis]
-	musicApiStore.setValue(nextApiList)
-	PersistStatus.set('music.musicApi', nextApiList)
-	if (selectedMusicApi && selectedMusicApi.id !== QQ_WEB_SOURCE_ID) {
-		musicApiSelectedStore.setValue(selectedMusicApi)
-		await reloadNowSelectedMusicApi()
-	} else {
-		musicApiSelectedStore.setValue(builtInQqApi)
-		PersistStatus.set('music.selectedMusicApi', builtInQqApi)
-	}
+	musicApiStore.setValue([builtInQqApi])
+	musicApiSelectedStore.setValue(builtInQqApi)
+	PersistStatus.set('music.musicApi', [builtInQqApi])
+	PersistStatus.set('music.selectedMusicApi', builtInQqApi)
 	if (importedLocalMusic) {
 		importedLocalMusicStore.setValue(importedLocalMusic)
 	}

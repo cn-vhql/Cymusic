@@ -11,9 +11,8 @@ import {
 	SplashScreen,
 	Stack,
 	ThemeProvider,
-	useRootNavigationState,
 } from 'expo-router'
-import { ShareIntentProvider, useShareIntentContext } from 'expo-share-intent'
+import { ShareIntentProvider } from 'expo-share-intent'
 import { StatusBar } from 'expo-status-bar'
 import { useCallback, useEffect, useMemo } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -58,15 +57,6 @@ const App = () => {
 
 const ThemedAppShell = () => {
 	const { colors, isDark, statusBarStyle } = useAppTheme()
-	const { hasShareIntent } = useShareIntentContext()
-	const navigationState = useRootNavigationState()
-
-	useEffect(() => {
-		if (navigationState?.key && hasShareIntent) {
-			router.replace('/(modals)/cymusic')
-		}
-	}, [hasShareIntent, navigationState?.key])
-
 	const toastConfig = useMemo(
 		() => ({
 			success: (props) => (

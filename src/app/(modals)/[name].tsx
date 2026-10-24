@@ -4,12 +4,11 @@ import { logInfo } from '@/helpers/logger'
 import { getAlbumSongList, getSingerDetail } from '@/helpers/userApi/getMusicSource'
 import { useThemeColors } from '@/hooks/useAppTheme'
 import { useDefaultStyles } from '@/styles'
-import { useLocalSearchParams, usePathname } from 'expo-router'
+import { Redirect, useLocalSearchParams, usePathname } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, ScrollView, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { Track } from '@/player/types'
-import ShareIntent from './shareintent'
 // 专辑页面or歌手页面
 const SingerListScreen = () => {
 	const colors = useThemeColors()
@@ -26,9 +25,7 @@ const SingerListScreen = () => {
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
-		if (isShareIntentPath) {
-			return
-		}
+		if (isShareIntentPath) return
 		const fetchSingerListDetail = async () => {
 			let detail
 			if (isAlbum) {
@@ -47,7 +44,7 @@ const SingerListScreen = () => {
 	}, [isAlbum, isShareIntentPath, playlistName])
 
 	if (isShareIntentPath) {
-		return <ShareIntent></ShareIntent>
+		return <Redirect href="/" />
 	}
 
 	console.log('album', album)

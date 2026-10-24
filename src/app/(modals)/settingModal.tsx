@@ -6,7 +6,6 @@ import myTrackPlayer, {
 	isCachedIconVisibleStore,
 	musicApiSelectedStore,
 	musicApiStore,
-	nowApiState,
 	songsNumsToLoadStore,
 	useCurrentQuality,
 } from '@/helpers/trackPlayerIndex'
@@ -384,7 +383,6 @@ const SettingModal = () => {
 	const router = useRouter()
 	const [currentQuality, setCurrentQuality] = useCurrentQuality()
 	const [isLoading, setIsLoading] = useState(false)
-	const apiState = nowApiState.useValue()
 	const language = nowLanguage.useValue()
 	const autoCacheLocal = autoCacheLocalStore.useValue()
 	const isCachedIconVisible = isCachedIconVisibleStore.useValue()
@@ -447,23 +445,6 @@ const SettingModal = () => {
 						},
 					]
 					: []),
-			],
-		},
-		{
-			title: i18n.t('settings.sections.customSource'),
-			data: [
-				{ id: '11', title: i18n.t('settings.items.switchSource'), type: 'custom' },
-				{
-					id: '7',
-					title: i18n.t('settings.items.sourceStatus'),
-					type: 'value',
-					value:
-						apiState == '正常'
-							? i18n.t('settings.items.normal')
-							: i18n.t('settings.items.exception'),
-				},
-				{ id: '12', title: i18n.t('settings.items.deleteSource'), type: 'value', value: '' },
-				{ id: '8', title: i18n.t('settings.items.importSource'), type: 'value' },
 			],
 		},
 		{
