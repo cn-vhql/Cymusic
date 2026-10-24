@@ -1,4 +1,4 @@
-import { NativeModule, requireNativeModule } from 'expo'
+import { NativeModule, requireOptionalNativeModule } from 'expo'
 
 export type QqLoginCompletedEvent = {
 	ok: boolean
@@ -14,4 +14,6 @@ declare class CyMusicQqLogin extends NativeModule<{
 	clearSession(): Promise<void>
 }
 
-export default requireNativeModule<CyMusicQqLogin>('CyMusicQqLogin')
+// Optional so a stale sideloaded binary or unsupported platform disables QQ login
+// instead of throwing during JS module initialization and terminating the app.
+export default requireOptionalNativeModule<CyMusicQqLogin>('CyMusicQqLogin')

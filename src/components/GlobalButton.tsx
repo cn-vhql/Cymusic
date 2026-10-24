@@ -18,11 +18,13 @@ const GlobalButton = () => {
 	}
 
 	const refreshLoginState = useCallback(async () => {
+		if (!CyMusicQqLogin) return
 		setSignedIn(Boolean(await CyMusicQqLogin.getSession()))
 	}, [])
 
 	useEffect(() => {
 		void refreshLoginState()
+		if (!CyMusicQqLogin) return
 		const subscription = CyMusicQqLogin.addListener(
 			'loginCompleted',
 			(event: QqLoginCompletedEvent) => {
@@ -38,6 +40,10 @@ const GlobalButton = () => {
 	}, [refreshLoginState])
 
 	const openQqLogin = async () => {
+		if (!CyMusicQqLogin) {
+			showToast('QQ 登录模块不可用', '请重新安装当前构建的 IPA', 'error')
+			return
+		}
 		try {
 			await CyMusicQqLogin.startLogin()
 		} catch (error) {
@@ -56,6 +62,7 @@ const GlobalButton = () => {
 				text: '退出登录',
 				style: 'destructive',
 				onPress: async () => {
+					if (!CyMusicQqLogin) return
 					await CyMusicQqLogin.clearSession()
 					setSignedIn(false)
 					showToast('已退出 QQ 音乐')

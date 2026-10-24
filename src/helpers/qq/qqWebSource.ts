@@ -50,6 +50,9 @@ async function getQqWebMusicUrl(
 	songmid: string,
 	quality: string,
 ): Promise<string | null> {
+	if (!CyMusicQqLogin) {
+		throw new Error('QQ 登录模块不可用，请重新安装当前构建的 IPA')
+	}
 	const cookie = await CyMusicQqLogin.getSession()
 	if (!cookie) {
 		throw new Error('请先在首页右上角登录 QQ 音乐账号')
