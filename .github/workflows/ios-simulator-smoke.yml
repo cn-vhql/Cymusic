@@ -39,7 +39,7 @@ jobs:
 
       - name: Build simulator app
         run: |
-          udid="$(xcrun simctl list devices available -j | python3 - <<'PY'
+          udid="$(xcrun simctl list -j devices available | python3 - <<'PY'
           import json
           import sys
 
